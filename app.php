@@ -35,7 +35,6 @@ $app->get("/", function ($request, $response, $arguments) {
 });
 
 require __DIR__ . "/routes/token.php";
-require __DIR__ . "/routes/todos.php";
 require __DIR__ . "/routes/currencies.php";
 
 $app->run();
