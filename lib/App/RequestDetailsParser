@@ -1,0 +1,40 @@
+<?php
+
+/*
+ * This file is part of the Slim API skeleton package
+ *
+ * Copyright (c) 2016 Mika Tuupola
+ *
+ * Licensed under the MIT license:
+ *   http://www.opensource.org/licenses/mit-license.php
+ *
+ * Project home:
+ *   https://github.com/tuupola/slim-api-skeleton
+ *
+ */
+
+namespace App;
+
+class RequestDetailsParser {
+    private $spot;
+    private $logger;
+    
+    public function __construct(\Spot\Locator $spot, Monolog\Logger $logger) {
+        $this->spot = $spot;
+        $this->logger = $logger;
+    }
+    
+    public function __invoke(array $arguments) {
+        if (false === $user = $this->spot->mapper("App\User")->first([
+            "email" => $arguments["user"]
+        ])) {
+            $this->logger->info("User " + $arguments["user"] + " not known, logging failed.");
+            return false; //wrong username provided
+        };
+        $passwordCorrect = password_verify($arguments["password"], $user->hash);
+        if ($passwordCorrect){
+            $this->logger->info("User " + $user->email + " authenticated.");
+        }
+        return $passwordCorrect;
+    }
+}

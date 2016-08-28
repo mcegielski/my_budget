@@ -20,31 +20,21 @@ use Tuupola\Base62;
 $app->post("/token", function ($request, $response, $arguments) {
     $requested_scopes = $request->getParsedBody();
 
-    $valid_scopes = [
-        "todo.create",
-        "todo.read",
-        "todo.update",
-        "todo.delete",
-        "todo.list",
-        "todo.all"
-    ];
-
-    $scopes = array_filter($requested_scopes, function ($needle) use ($valid_scopes) {
-        return in_array($needle, $valid_scopes);
-    });
 
     $now = new DateTime();
-    $future = new DateTime("now +2 hours");
+    $future = new DateTime("now +24 hours");
     $server = $request->getServerParams();
 
     $jti = Base62::encode(random_bytes(16));
-
+    
+    $user = $this->spot->mapper("App\User")->first( [ "email" => $server["PHP_AUTH_USER"] ] );
+        
     $payload = [
         "iat" => $now->getTimeStamp(),
         "exp" => $future->getTimeStamp(),
         "jti" => $jti,
         "sub" => $server["PHP_AUTH_USER"],
-        "scope" => $scopes
+        "userId" => $user->id
     ];
 
     $secret = getenv("JWT_SECRET");

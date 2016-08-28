@@ -19,16 +19,39 @@ use Slim\Middleware\HttpBasicAuthentication;
 use Tuupola\Middleware\Cors;
 use Gofabian\Negotiation\NegotiationMiddleware;
 use Micheh\Cache\CacheUtil;
+use Slim\Middleware\HttpBasicAuthentication\AuthenticatorInterface;
+
+class DbAuthenticator implements AuthenticatorInterface {
+    private $spot;
+    private $logger;
+    
+    public function __construct(\Spot\Locator $spot, Monolog\Logger $logger) {
+        $this->spot = $spot;
+        $this->logger = $logger;
+    }
+    
+    public function __invoke(array $arguments) {
+        if (false === $user = $this->spot->mapper("App\User")->first([
+            "email" => $arguments["user"]
+        ])) {
+            $this->logger->info("User " + $arguments["user"] + " not known, logging failed.");
+            return false; //wrong username provided
+        };
+        $passwordCorrect = password_verify($arguments["password"], $user->hash);
+        if ($passwordCorrect){
+            $this->logger->info("User " + $user->email + " authenticated.");
+        }
+        return $passwordCorrect;
+    }
+}
 
 $container = $app->getContainer();
 
 $container["HttpBasicAuthentication"] = function ($container) {
     return new HttpBasicAuthentication([
         "path" => "/token",
-        "relaxed" => ["192.168.50.52"],
-        "users" => [
-            "test" => "test"
-        ]
+        "relaxed" => ["localhost"],
+        "authenticator" => new DbAuthenticator($container["spot"], $container["logger"])
     ]);
 };
 
@@ -42,7 +65,7 @@ $container["JwtAuthentication"] = function ($container) {
         "passthrough" => ["/token"],
         "secret" => getenv("JWT_SECRET"),
         "logger" => $container["logger"],
-        "relaxed" => ["192.168.50.52"],
+        "relaxed" => ["localhost"],
         "error" => function ($request, $response, $arguments) {
             $data["status"] = "error";
             $data["message"] = $arguments["message"];

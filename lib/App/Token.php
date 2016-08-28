@@ -10,9 +10,14 @@ class Token
     {
         $this->decoded = $decoded;
     }
-
-    public function hasScope(array $scope)
+    
+    public function getUsername()
     {
-        return !!count(array_intersect($scope, $this->decoded->scope));
+        return $this->decoded->sub;
+    }
+
+    public function getUserId()
+    {
+        return $this->decoded->userId;
     }
 }

@@ -29,9 +29,9 @@ use League\Fractal\Serializer\DataArraySerializer;
 $app->get("/todos", function ($request, $response, $arguments) {
 
     /* Check if token has needed scope. */
-    if (false === $this->token->hasScope(["todo.all", "todo.list"])) {
-        throw new ForbiddenException("Token not allowed to list todos.", 403);
-    }
+//     if (false === $this->token->hasScope(["todo.all", "todo.list"])) {
+//         throw new ForbiddenException("Token not allowed to list todos.", 403);
+//     }
 
     /* Use ETag and date from Todo with most recent update. */
     $first = $this->spot->mapper("App\Todo")
