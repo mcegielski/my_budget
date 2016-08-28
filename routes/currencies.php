@@ -54,9 +54,10 @@ $app->post("/currencies", function ($request, $response, $arguments) {
 });
 
 $app->get("/currencies/{id}", function ($request, $response, $arguments) {
-    if (false === $currency = $this->spot->mapper("App\Currency")->get(
-        $arguments["id"]
-    )) {
+    if (false === $currency = $this->spot->mapper("App\Currency")->first([
+        "user_id" => $this->token->getUserId(),
+        "id" => $arguments["id"]
+    ])) {
         throw new NotFoundException("Currency not found.", 404);
     };
 
@@ -71,10 +72,36 @@ $app->get("/currencies/{id}", function ($request, $response, $arguments) {
         ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
 });
 
+$app->put("/currencies/{id}", function ($request, $response, $arguments) {
+    if (false === $currency = $this->spot->mapper("App\Currency")->first([
+        "user_id" => $this->token->getUserId(),
+        "id" => $arguments["id"]
+    ])) {
+        throw new NotFoundException("Currency not found.", 404);
+    };
+    $body = $request->getParsedBody();
+    /* PUT request assumes full representation. If any of the properties is */
+    /* missing set them to default values by clearing the todo object first. */
+    //$currency->clear();
+    $currency->data($body);
+    $this->spot->mapper("App\Currency")->save($currency);
+    
+    $fractal = new Manager();
+    $fractal->setSerializer(new DataArraySerializer);
+    $resource = new Item($currency, new CurrencyTransformer);
+    $data = $fractal->createData($resource)->toArray();
+    $data["status"] = "ok";
+    $data["message"] = "Currency updated";
+    return $response->withStatus(200)
+        ->withHeader("Content-Type", "application/json")
+        ->write(json_encode($data, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT));
+});
+
 $app->delete("/currencies/{id}", function ($request, $response, $arguments) {
-    if (false === $currency = $this->spot->mapper("App\Currency")->get(
-        $arguments["id"]
-    )) {
+    if (false === $currency = $this->spot->mapper("App\Currency")->first([
+        "user_id" => $this->token->getUserId(),
+        "id" => $arguments["id"]
+    ])) {
         throw new NotFoundException("Currency not found.", 404);
     };
 
