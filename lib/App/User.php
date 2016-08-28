@@ -42,7 +42,11 @@ class User extends \Spot\Entity
     public static function events(EventEmitter $emitter)
     {
         $emitter->on("beforeUpdate", function (EntityInterface $entity, MapperInterface $mapper) {
-            $entity->updated_at = new \DateTime();
+            $entity->modified = new \DateTime();
+        });
+        $emitter->on("beforeInsert", function (EntityInterface $entity, MapperInterface $mapper) {
+            $entity->created = new \DateTime();
+            $entity->modified = new \DateTime();
         });
     }
 //     public function timestamp()

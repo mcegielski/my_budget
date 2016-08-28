@@ -34,18 +34,19 @@ class Currency extends \Spot\Entity
             "id" => ["type" => "integer", "unsigned" => true, "primary" => true, "autoincrement" => true],
             "name" => ["type" => "string", "length" => 300],
             "user_id" => ["type" => "integer"],
-            "created"   => ["type" => "datetime", "value" => new \DateTime()],
-            "modified"   => ["type" => "datetime", "value" => new \DateTime()]
+            "created"   => ["type" => "datetime"],
+            "modified"   => ["type" => "datetime"]
         ];
     }
-    
-    public function timestamp()
-    {
-        return $this->modified->getTimestamp();
-    }
 
-    public function etag()
+    public static function events(EventEmitter $emitter)
     {
-        return md5($this->id . $this->timestamp());
+        $emitter->on("beforeUpdate", function (EntityInterface $entity, MapperInterface $mapper) {
+            $entity->modified = new \DateTime();
+        });
+        $emitter->on("beforeInsert", function (EntityInterface $entity, MapperInterface $mapper) {
+            $entity->created = new \DateTime();
+            $entity->modified = new \DateTime();
+        });
     }
 }
