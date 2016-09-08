@@ -2,9 +2,9 @@
 
 namespace App;
 
-class Currency extends \App\RootEntity
+class Category extends \App\RootEntity
 {
-    protected static $table = "currencies";
+    protected static $table = "categoriess";
 
     public static function fields()
     {
