@@ -2,15 +2,16 @@
 
 namespace App;
 
-class Category extends \App\RootEntity
+class Wallet extends \App\RootEntity
 {
-    protected static $table = "categories";
+    protected static $table = "wallets";
 
     public static function fields()
     {
         $specificData = [
             "name" => ["type" => "string", "length" => 300],
-            "user_id" => ["type" => "integer"]
+            "currency_id" => ["type" => "integer"],
+            "balance" => ["type" => "decimal"]
         ];
         return array_merge($specificData, parent::fields());
     }

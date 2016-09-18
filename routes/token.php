@@ -22,7 +22,9 @@ $app->post("/token", function ($request, $response, $arguments) {
 
 
     $now = new DateTime();
-    $future = new DateTime("now +24 hours");
+    //$future = new DateTime("now +24 hours");
+    //decrease later
+    $future = new DateTime("now +10 years");
     $server = $request->getServerParams();
 
     $jti = Base62::encode(random_bytes(16));
