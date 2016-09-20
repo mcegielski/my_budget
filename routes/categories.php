@@ -17,7 +17,7 @@ $app->get("/categories", function ($request, $response, $arguments) use ($app) {
         ->all([
             "user_id" => $this->token->getUserId()
         ])
-        ->order($requestDetailsParser->getOrder())
+        ->order($requestDetailsParser->getOrder(Category::fields()))
         ->limit($requestDetailsParser->getLimit(),$requestDetailsParser->getOffset());
 
     /* Serialize the response data. */

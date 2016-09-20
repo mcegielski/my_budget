@@ -17,10 +17,10 @@ $app->get("/wallets", function ($request, $response, $arguments) use ($app) {
         ->query("SELECT w.*
                 FROM wallets w
                     JOIN currencies c ON w.currency_id = c.id
-                WHERE c.user_id = :user_id",
+                WHERE c.user_id = :user_id
+                ORDER BY w.".$requestDetailsParser->getOrderBy(Wallet::fields())." ".$requestDetailsParser->getOrderHow()."
+                LIMIT ".$requestDetailsParser->getOffset().", ".$requestDetailsParser->getLimit(),
                 ["user_id" => $this->token->getUserId()]);
-    //FIXME: add order and limt
-    /* Serialize the response data. */
     $fractal = new Manager();
     $fractal->setSerializer(new DataArraySerializer);
     $resource = new Collection($wallets, new WalletTransformer);
@@ -39,12 +39,11 @@ $app->post("/wallets", function ($request, $response, $arguments) {
     $currency = $this->spot->mapper("App\Currency")
         ->first([
             "user_id" => $this->token->getUserId(),
-            "id" => $wallet->wallet_id
+            "id" => $wallet->currency_id
         ]);
     if (!$currency){
         return $response->withStatus(403)->write("Not owned linked resources selected!");
     }
-    echo "not there...";
     if (!$wallet->balance){
         $wallet->balance = 0;
     }

@@ -17,7 +17,7 @@ $app->get("/currencies", function ($request, $response, $arguments) use ($app) {
         ->all([
             "user_id" => $this->token->getUserId()
         ])
-        ->order($requestDetailsParser->getOrder())
+        ->order($requestDetailsParser->getOrder(Currency::fields()))
         ->limit($requestDetailsParser->getLimit(),$requestDetailsParser->getOffset());
 
     /* Serialize the response data. */
