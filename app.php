@@ -38,5 +38,6 @@ require __DIR__ . "/routes/token.php";
 require __DIR__ . "/routes/currencies.php";
 require __DIR__ . "/routes/categories.php";
 require __DIR__ . "/routes/wallets.php";
+require __DIR__ . "/routes/transactions.php";
 
 $app->run();
